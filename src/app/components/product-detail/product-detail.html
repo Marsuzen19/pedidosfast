@@ -1,0 +1,70 @@
+<div class="container my-4" *ngIf="product; else notFound">
+    <!-- Botón Volver -->
+    <button class="btn btn-outline-dark btn-sm rounded-pill mb-3 px-3" (click)="goBack()">
+        ← Volver al Menú
+    </button>
+
+    <!-- Tarjeta Principal de Detalle -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+        <img [src]="product.image" class="card-img-top" [alt]="product.name" style="height: 220px; object-fit: cover;">
+        <div class="card-body p-4">
+            <h3 class="fw-bold text-dark mb-2">{{ product.name }}</h3>
+            <h4 class="text-danger fw-bold mb-3">S/. {{ product.price.toFixed(2) }}</h4>
+            <p class="text-muted small mb-4">{{ product.description }}</p>
+
+            <!-- SECCIÓN DE PERSONALIZACIÓN (Agregar / Quitar) -->
+            <div *ngIf="product.customizableOptions">
+
+                <!-- Quitar Ingredientes -->
+                <div class="mb-3" *ngIf="product.customizableOptions.removableIngredients.length > 0">
+                    <h6 class="fw-bold text-secondary small text-uppercase">Quitar ingredientes:</h6>
+                    <div class="form-check" *ngFor="let ing of product.customizableOptions.removableIngredients">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="removedIngredients[ing]"
+                            [id]="'rem-' + ing">
+                        <label class="form-check-label small" [for]="'rem-' + ing">
+                            Sin {{ ing }}
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Agregar Extras -->
+                <div class="mb-4" *ngIf="product.customizableOptions.addableExtras.length > 0">
+                    <h6 class="fw-bold text-secondary small text-uppercase">Agregar extras:</h6>
+                    <div class="form-check" *ngFor="let extra of product.customizableOptions.addableExtras">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="addedExtras[extra]"
+                            [id]="'ext-' + extra">
+                        <label class="form-check-label small" [for]="'ext-' + extra">
+                            {{ extra }}
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Control de Cantidad -->
+            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-4">
+                <span class="fw-bold text-dark">Cantidad:</span>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-dark btn-sm rounded-circle px-2"
+                        (click)="decreaseQuantity()">-</button>
+                    <span class="fw-bold fs-5">{{ quantity }}</span>
+                    <button class="btn btn-outline-dark btn-sm rounded-circle px-2"
+                        (click)="increaseQuantity()">+</button>
+                </div>
+            </div>
+
+            <!-- Botón de Confirmación -->
+            <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm" (click)="addToCart()">
+                Agregar al Pedido (S/. {{ (product.price * quantity).toFixed(2) }})
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Mensaje si no encuentra el producto -->
+<ng-template #notFound>
+    <div class="container text-center my-5">
+        <h4 class="text-muted">Producto no encontrado</h4>
+        <button class="btn btn-dark mt-3" (click)="goBack()">Regresar al Menú</button>
+    </div>
+</ng-template>

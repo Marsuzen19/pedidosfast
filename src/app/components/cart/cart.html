@@ -1,0 +1,82 @@
+<div class="container my-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark m-0">Tu Pedido</h2>
+        <button class="btn btn-outline-dark btn-sm rounded-pill px-3" routerLink="/">
+            ← Seguir Comprando
+        </button>
+    </div>
+
+    <!-- Si hay productos en el carrito -->
+    <div *ngIf="cartItems.length > 0; else emptyCart">
+
+        <!-- Aviso de Modo Offline / Almacenamiento Local -->
+        <div class="alert alert-warning small rounded-3 p-3 mb-4 d-flex align-items-center gap-2" role="alert">
+            <span>📶</span>
+            <div>
+                <strong>Modo PWA Activo:</strong> Tu pedido se almacena localmente. Si pierdes la conexión, se
+                sincronizará automáticamente al reconectar.
+            </div>
+        </div>
+
+        <!-- Lista de ítems -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="list-group list-group-flush">
+                <div class="list-group-item p-3 d-flex justify-content-between align-items-center"
+                    *ngFor="let item of cartItems; let i = index">
+                    <div class="me-3">
+                        <h6 class="fw-bold text-dark mb-1">{{ item.product.name }}</h6>
+                        <p class="text-muted small mb-1">Cantidad: <strong>{{ item.quantity }}</strong></p>
+
+                        <!-- Personalización (Ingredientes quitados o agregados) -->
+                        <div class="small text-secondary"
+                            *ngIf="item.removedIngredients.length > 0 || item.addedExtras.length > 0">
+                            <span class="text-danger d-block" *ngIf="item.removedIngredients.length > 0">
+                                ❌ Sin: {{ item.removedIngredients.join(', ') }}
+                            </span>
+                            <span class="text-success d-block" *ngIf="item.addedExtras.length > 0">
+                                ➕ Extras: {{ item.addedExtras.join(', ') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <span class="fw-bold text-danger d-block mb-2">S/. {{ item.totalItemPrice.toFixed(2) }}</span>
+                        <button class="btn btn-outline-danger btn-sm py-0 px-2" (click)="removeItem(i)"
+                            style="font-size: 0.75rem;">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen de Totales y Botón de Envío -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Total a Pagar:</span>
+                <h3 class="fw-bold text-danger m-0">S/. {{ totalAmount.toFixed(2) }}</h3>
+            </div>
+
+            <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm mb-2" (click)="sendOrder()">
+                Confirmar y Enviar a Cocina 🚀
+            </button>
+
+            <button class="btn btn-outline-secondary w-100 py-2 rounded-pill small border-0" (click)="clearCart()">
+                Vaciar Carrito
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Si el carrito está vacío -->
+    <ng-template #emptyCart>
+        <div class="text-center my-5 py-5">
+            <h4 class="text-muted mb-3">Tu carrito está vacío 🛒</h4>
+            <p class="text-muted small mb-4">Aún no has seleccionado ningún producto del menú.</p>
+            <button class="btn btn-dark rounded-pill px-4 py-2" routerLink="/">
+                Ver Menú de FastOrder
+            </button>
+        </div>
+    </ng-template>
+</div>
