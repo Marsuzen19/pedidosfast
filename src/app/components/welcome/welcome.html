@@ -1,0 +1,32 @@
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100 text-center">
+    <div class="card border-0 shadow-lg p-5 rounded-4" style="max-width: 480px; width: 100%;">
+        <div class="mb-4">
+            <h1 class="fw-bold text-dark display-6">🍔 FastOrder S.A.</h1>
+            <p class="text-muted small">Sistema de pedidos y monitoreo en tiempo real</p>
+        </div>
+
+        <hr class="mb-4">
+
+        <p class="text-secondary mb-4">Selecciona cómo deseas ingresar al sistema:</p>
+
+        <div class="d-grid gap-3">
+            <!-- Botón para ir al Menú de Clientes -->
+            <button
+                class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                routerLink="/menu">
+                <span>🛒</span> Soy Cliente (Ver Menú)
+            </button>
+
+            <!-- Botón para ir al Panel de Cocina -->
+            <button
+                class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                routerLink="/cocina">
+                <span>👨‍🍳</span> Soy Cocina (Panel de Pedidos)
+            </button>
+        </div>
+
+        <div class="mt-5 text-muted" style="font-size: 0.8rem;">
+            PWA Desarrollada con Angular e IndexedDB
+        </div>
+    </div>
+</div>

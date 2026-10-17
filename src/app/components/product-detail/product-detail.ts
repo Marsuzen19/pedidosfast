@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-detail',
@@ -47,9 +48,10 @@ export class ProductDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/menu']);
   }
-  addToCart(): void {
+
+  async addToCart(): Promise<void> {
     if (!this.product) return;
 
     // Filtrar los ingredientes que el usuario marcó para quitar
@@ -70,10 +72,20 @@ export class ProductDetailComponent implements OnInit {
       totalItemPrice: itemTotal
     };
 
-    // Importa y usa CartService 
-    this.cartService.addToCart(cartItem);
+    // Guardar en el carrito (IndexedDB)
+    await this.cartService.addToCart(cartItem);
 
-    alert(`¡${this.product.name} agregado al pedido correctamente!`);
-    this.router.navigate(['/carrito']); // Redirigir directamente al carrito para ver la orden
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `¡${this.product.name} agregado!`,
+      showConfirmButton: false,
+      timer: 1200,
+      timerProgressBar: true
+    });
+
+    // Redirigir al carrito
+    this.router.navigate(['/carrito']);
   }
 }

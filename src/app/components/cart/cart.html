@@ -1,8 +1,21 @@
 <div class="container my-4">
+    <!-- Alerta flotante de éxito al enviar pedido -->
+    <div *ngIf="successMessage"
+        class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4 fw-bold text-center"
+        role="alert">
+        🎉 {{ successMessage }}
+    </div>
+
+    <!-- Alerta de error si intenta enviar vacío -->
+    <div *ngIf="errorMessage"
+        class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4 small text-center" role="alert">
+        ⚠️ {{ errorMessage }}
+    </div>
+
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark m-0">Tu Pedido</h2>
-        <button class="btn btn-outline-dark btn-sm rounded-pill px-3" routerLink="/">
+        <button class="btn btn-outline-dark btn-sm rounded-pill px-3" routerLink="/menu">
             ← Seguir Comprando
         </button>
     </div>
@@ -10,7 +23,7 @@
     <!-- Si hay productos en el carrito -->
     <div *ngIf="cartItems.length > 0; else emptyCart">
 
-        <!-- Aviso de Modo Offline / Almacenamiento Local -->
+        <!-- Aviso de Modo Offline y Almacenamiento Local -->
         <div class="alert alert-warning small rounded-3 p-3 mb-4 d-flex align-items-center gap-2" role="alert">
             <span>📶</span>
             <div>
@@ -28,7 +41,7 @@
                         <h6 class="fw-bold text-dark mb-1">{{ item.product.name }}</h6>
                         <p class="text-muted small mb-1">Cantidad: <strong>{{ item.quantity }}</strong></p>
 
-                        <!-- Personalización (Ingredientes quitados o agregados) -->
+                        <!-- Personalización -->
                         <div class="small text-secondary"
                             *ngIf="item.removedIngredients.length > 0 || item.addedExtras.length > 0">
                             <span class="text-danger d-block" *ngIf="item.removedIngredients.length > 0">
@@ -74,7 +87,7 @@
         <div class="text-center my-5 py-5">
             <h4 class="text-muted mb-3">Tu carrito está vacío 🛒</h4>
             <p class="text-muted small mb-4">Aún no has seleccionado ningún producto del menú.</p>
-            <button class="btn btn-dark rounded-pill px-4 py-2" routerLink="/">
+            <button class="btn btn-dark rounded-pill px-4 py-2" routerLink="/menu">
                 Ver Menú de FastOrder
             </button>
         </div>

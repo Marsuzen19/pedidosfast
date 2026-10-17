@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart-item.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cart',
@@ -11,9 +12,12 @@ import { CartItem } from '../../models/cart-item.model';
   templateUrl: './cart.html',
   styleUrls: ['./cart.css']
 })
+
 export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
   totalAmount: number = 0;
+  successMessage: string = ''; 
+  errorMessage: string = '';
 
   constructor(
     private cartService: CartService,
@@ -29,25 +33,35 @@ export class CartComponent implements OnInit {
     this.totalAmount = this.cartService.getTotalAmount();
   }
 
-  removeItem(index: number): void {
-    this.cartService.removeFromCart(index);
-    this.loadCart(); // Recargar totales
-  }
-
-  clearCart(): void {
-    this.cartService.clearCart();
+  async removeItem(index: number): Promise<void> {
+    await this.cartService.removeFromCart(index);
     this.loadCart();
   }
 
-  sendOrder(): void {
+  async clearCart(): Promise<void> {
+    await this.cartService.clearCart();
+    this.loadCart();
+  }
+
+  async sendOrder(): Promise<void> {
     if (this.cartItems.length === 0) {
-      alert('Tu carrito está vacío.');
+      Swal.fire('Atención', 'Tu carrito está vacío.', 'warning');
       return;
     }
 
-    // envio notificacion a cocina
-    alert('¡Pedido enviado a la cocina con éxito! 🍔👨‍🍳');
-    this.cartService.clearCart();
-    this.router.navigate(['/']); // Regresar al menu principal
+    // Envía el pedido a IndexedDB (historial) y avisa en tiempo real a la cocina
+    const order = await this.cartService.sendOrderToKitchen();
+    
+   if (order) {
+      Swal.fire({
+        title: '¡Enviado a Cocina! 🍔',
+        text: 'Tu pedido está siendo procesado.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        this.router.navigate(['/estado-pedido']);
+      });
+    }
   }
 }

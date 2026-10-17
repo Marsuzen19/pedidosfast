@@ -1,0 +1,133 @@
+<div class="container my-4 pb-5">
+    <!-- Cabecera de Cocina Responsiva -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3 text-center text-md-start">
+        <div>
+            <h2
+                class="fw-bold text-dark m-0 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                <span>👨‍🍳</span> Panel de Control - Cocina
+            </h2>
+            <p class="text-muted small m-0 mt-1">Gestiona estados, tiempos de entrega y pagos en tiempo real</p>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+            <span
+                class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold border border-danger-subtle shadow-sm">
+                🔔 {{ liveOrders.length }} Órdenes totales
+            </span>
+            <button class="btn btn-dark btn-sm rounded-pill px-4 py-2 fw-bold shadow-sm" routerLink="/">
+                ← Volver al Inicio
+            </button>
+        </div>
+    </div>
+
+    <!-- Lista de pedidos en cuadrícula -->
+    <div *ngIf="liveOrders.length > 0; else noOrders" class="row g-4">
+        <div class="col-12 col-md-6 col-lg-4" *ngFor="let order of liveOrders">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column position-relative overflow-hidden"
+                [class.border-start]="true" [class.border-warning]="order.status?.includes('Pendiente')"
+                [class.border-info]="order.status?.includes('preparación')"
+                [class.border-success]="order.status?.includes('Listo')"
+                [class.bg-white]="!order.status?.includes('Listo')" [class.bg-light]="order.status?.includes('Listo')"
+                style="border-left-width: 6px !important;">
+
+                <!-- Cabecera de la tarjeta -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-secondary-subtle text-secondary fw-bold px-3 py-2 rounded-pill">
+                        Pedido #{{ order.id }}
+                    </span>
+                    <!-- Badge de Estado Moderno -->
+                    <span class="badge px-3 py-2 rounded-pill fw-bold"
+                        [class.bg-warning-subtle]="order.status?.includes('Pendiente')"
+                        [class.text-warning-emphasis]="order.status?.includes('Pendiente')"
+                        [class.bg-info-subtle]="order.status?.includes('preparación')"
+                        [class.text-info-emphasis]="order.status?.includes('preparación')"
+                        [class.bg-success-subtle]="order.status?.includes('Listo')"
+                        [class.text-success-emphasis]="order.status?.includes('Listo')">
+                        {{ order.status }}
+                    </span>
+                </div>
+                <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">📅 {{ order.date }}</small>
+
+                <hr class="my-1 text-muted opacity-25">
+
+                <!-- INDICADOR DE PAGO (CORREGIDO) -->
+                <div class="p-2 rounded-3 mb-3 d-flex justify-content-between align-items-center border shadow-sm"
+                    [class.bg-success-subtle]="order.isPaid" [class.bg-warning-subtle]="!order.isPaid">
+                    <span class="small fw-bold" [class.text-success-emphasis]="order.isPaid"
+                        [class.text-warning-emphasis]="!order.isPaid">
+                        {{ order.isPaid ? '✅ Cancelado (' + order.paymentMethod + ')' : '⏳ Sin Pagar' }}
+                    </span>
+                    <!-- Aquí estaba el error. Ahora las clases están separadas -->
+                    <span class="badge" [class.bg-success]="order.isPaid" [class.bg-warning]="!order.isPaid"
+                        [class.text-dark]="!order.isPaid" style="font-size: 0.65rem;">
+                        {{ order.isPaid ? 'Pagado' : 'Pendiente' }}
+                    </span>
+                </div>
+
+                <!-- Items del pedido -->
+                <div class="flex-grow-1 mb-3">
+                    <h6 class="text-uppercase fw-bold text-muted mb-2"
+                        style="font-size: 0.7rem; letter-spacing: 0.5px;">Platos solicitados:</h6>
+                    <ul class="list-unstyled mb-0">
+                        <ng-container *ngIf="order.items && order.items.length > 0">
+                            <li *ngFor="let item of order.items" class="mb-2 pb-2 border-bottom border-light">
+                                <div class="fw-semibold text-dark">
+                                    <span class="badge bg-dark text-white me-1">{{ item.quantity }}x</span>
+                                    {{ item.product?.name || 'Producto sin nombre' }}
+                                </div>
+                                <div class="text-danger small ps-3 mt-1"
+                                    *ngIf="item.removedIngredients && item.removedIngredients.length > 0">
+                                    ❌ Sin: {{ item.removedIngredients.join(', ') }}
+                                </div>
+                                <div class="text-success small ps-3 mt-1"
+                                    *ngIf="item.addedExtras && item.addedExtras.length > 0">
+                                    ➕ Extras: {{ item.addedExtras.join(', ') }}
+                                </div>
+                            </li>
+                        </ng-container>
+                    </ul>
+                </div>
+
+                <!-- Total -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
+                    <span class="fw-semibold text-muted small">Total a cobrar:</span>
+                    <span class="fw-bold text-danger fs-5">
+                        S/. {{ order.total ? order.total.toFixed(2) : '0.00' }}
+                    </span>
+                </div>
+
+                <!-- CONTROLES DE COCINA -->
+                <div class="bg-white p-3 rounded-4 border border-opacity-50 shadow-sm mt-auto">
+                    <label class="form-label text-secondary small fw-bold mb-1">⏱️ Tiempo de entrega (min):</label>
+                    <input type="text" #timeInput
+                        class="form-control form-control-sm rounded-pill px-3 mb-3 text-center fw-bold text-danger"
+                        [value]="order.deliveryTime || '15'" placeholder="Ej: 15">
+
+                    <div class="d-grid gap-2">
+                        <button
+                            class="btn btn-outline-info btn-sm fw-bold rounded-pill py-2 d-flex align-items-center justify-content-center gap-1"
+                            (click)="updateOrder(order, 'En preparación 🍳', timeInput.value)">
+                            <span>🍳</span> Marcar: En Preparación
+                        </button>
+                        <button
+                            class="btn btn-success btn-sm fw-bold rounded-pill py-2 d-flex align-items-center justify-content-center gap-1 shadow-sm"
+                            (click)="updateOrder(order, 'Listo para entregar 🛵', timeInput.value)">
+                            <span>🛵</span> Marcar: Listo para Entregar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <ng-template #noOrders>
+        <div class="text-center my-5 py-5 card border-0 shadow-sm rounded-4 p-5 bg-white">
+            <div class="mb-3 fs-1">🛎️</div>
+            <h4 class="fw-bold text-dark mb-2">No hay pedidos en la cocina</h4>
+            <p class="text-muted small mb-0">Los pedidos enviados por los clientes aparecerán aquí automáticamente en
+                tiempo real.</p>
+        </div>
+    </ng-template>
+</div>

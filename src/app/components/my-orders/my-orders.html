@@ -1,0 +1,126 @@
+<div class="container my-4 pb-5" style="max-width: 750px;">
+    <!-- Cabecera Responsiva -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3 text-center text-md-start">
+        <div>
+            <h2
+                class="fw-bold text-dark m-0 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                <span>📋</span> Mis Pedidos
+            </h2>
+            <p class="text-muted small m-0 mt-1">Historial y seguimiento de tus órdenes en tiempo real</p>
+        </div>
+        <button class="btn btn-dark btn-sm rounded-pill px-4 py-2 fw-bold shadow-sm" routerLink="/menu">
+            ← Volver al Menú
+        </button>
+    </div>
+
+    <!-- Lista de pedidos -->
+    <div *ngIf="myOrders.length > 0; else noOrders" class="d-flex flex-column gap-4">
+        <div *ngFor="let order of myOrders"
+            class="card border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden" [class.border-start]="true"
+            [class.border-warning]="order.status?.includes('Pendiente')"
+            [class.border-info]="order.status?.includes('preparación')"
+            [class.border-success]="order.status?.includes('Listo')" style="border-left-width: 6px !important;">
+
+            <!-- Cabecera de la tarjeta -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="badge bg-secondary-subtle text-secondary fw-bold px-3 py-2 rounded-pill">Pedido #{{
+                        order.id }}</span>
+                    <span class="text-muted small ms-2 d-none d-sm-inline">{{ order.date }}</span>
+                </div>
+
+                <span class="badge px-3 py-2 rounded-pill fw-bold fs-6 shadow-sm"
+                    [class.bg-warning-subtle]="order.status?.includes('Pendiente')"
+                    [class.text-warning-emphasis]="order.status?.includes('Pendiente')"
+                    [class.bg-info-subtle]="order.status?.includes('preparación')"
+                    [class.text-info-emphasis]="order.status?.includes('preparación')"
+                    [class.bg-success-subtle]="order.status?.includes('Listo')"
+                    [class.text-success-emphasis]="order.status?.includes('Listo')">
+                    {{ order.status }}
+                </span>
+            </div>
+
+            <div class="text-muted small mb-3 d-sm-none">{{ order.date }}</div>
+
+            <!-- Tiempo Estimado -->
+            <div
+                class="p-3 rounded-4 bg-light border border-opacity-50 d-flex justify-content-between align-items-center mb-3 shadow-sm">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-5">⏱️</span>
+                    <span class="text-secondary small fw-semibold">Tiempo estimado de entrega:</span>
+                </div>
+                <span class="badge bg-danger-subtle text-danger fw-bold fs-6 px-3 py-2 rounded-pill">
+                    {{ order.deliveryTime || 'Por definir' }}
+                </span>
+            </div>
+
+            <!-- SECCIÓN DE PAGO -->
+            <div class="p-3 rounded-4 bg-white border d-flex justify-content-between align-items-center mb-3 shadow-sm">
+                <div>
+                    <span class="text-muted small d-block">Estado del Pago:</span>
+                    <span class="fw-bold" [class.text-danger]="!order.isPaid" [class.text-success]="order.isPaid">
+                        {{ order.isPaid ? '✅ Cancelado (' + order.paymentMethod + ')' : '⏳ Pendiente de Pago' }}
+                    </span>
+                </div>
+                <button *ngIf="!order.isPaid" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm"
+                    (click)="openPaymentModal(order)">
+                    💳 Pagar Ahora
+                </button>
+            </div>
+
+            <!-- Detalle de platos -->
+            <div class="mb-3">
+                <h6 class="text-uppercase fw-bold text-muted mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    Resumen del pedido:</h6>
+                <ul class="list-unstyled mb-0">
+                    <!-- PROTECCIÓN AGREGADA -->
+                    <ng-container *ngIf="order.items && order.items.length > 0">
+                        <li *ngFor="let item of order.items"
+                            class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                            <div class="pe-2">
+                                <div class="fw-semibold text-dark">
+                                    <span class="badge bg-danger text-white me-2">{{ item.quantity }}x</span>
+                                    {{ item.product?.name || 'Producto sin nombre' }}
+                                </div>
+                                <div class="text-danger small mt-1"
+                                    *ngIf="item.removedIngredients && item.removedIngredients.length > 0">
+                                    ❌ Sin: {{ item.removedIngredients.join(', ') }}
+                                </div>
+                                <div class="text-success small mt-1"
+                                    *ngIf="item.addedExtras && item.addedExtras.length > 0">
+                                    ➕ Extras: {{ item.addedExtras.join(', ') }}
+                                </div>
+                            </div>
+                            <span class="fw-bold text-secondary text-nowrap">
+                                S/. {{ item.totalItemPrice ? item.totalItemPrice.toFixed(2) : '0.00' }}
+                            </span>
+                        </li>
+                    </ng-container>
+                </ul>
+            </div>
+
+            <!-- Total -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top bg-white">
+                <span class="text-muted fw-semibold">Total a pagar:</span>
+                <span class="fw-bold fs-4 text-danger">
+                    S/. {{ order.total ? order.total.toFixed(2) : '0.00' }}
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <ng-template #noOrders>
+        <div class="text-center my-5 py-5 card border-0 shadow-sm rounded-4 p-5 bg-white">
+            <div class="mb-3 fs-1">🛍️</div>
+            <h4 class="fw-bold text-dark mb-2">Aún no has realizado ningún pedido</h4>
+            <p class="text-muted small mb-4">Explora nuestro menú, personaliza tus platos favoritos y envíalos a cocina.
+            </p>
+            <button class="btn btn-dark rounded-pill px-5 py-3 fw-bold shadow-sm mx-auto" routerLink="/menu">
+                Ver Menú y Comprar 🍔
+            </button>
+        </div>
+    </ng-template>
+</div>
